@@ -1,0 +1,27 @@
+steps:
+  - id: whoami
+    name: google/cloud-sdk:alpine
+    args:
+      - gcloud
+      - config
+      - list
+      - account
+
+  - id: build
+    name: gcr.io/kaniko-project/executor:latest
+    args: [
+      "--log-format=text",
+      "--cache=true",
+      "--cache-ttl=24h",
+      "--dockerfile=Dockerfile",
+      "--context=dir://.",
+      "--destination=europe-north1-docker.pkg.dev/${PROJECT_ID}/main/hello:${SHORT_SHA}",
+    ]
+
+substitutions:
+  _SERVICE_NAME: hello
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+serviceAccount: 'projects/${PROJECT_ID}/serviceAccounts/builder@peaceful-oath-325609.iam.gserviceaccount.com'
